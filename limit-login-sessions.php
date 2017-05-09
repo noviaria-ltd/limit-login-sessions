@@ -28,6 +28,8 @@ const MAX_CONCURRENT_SESSIONS = 3;
 const OLDEST_ALLOWED_SESSION_HOURS = 1;
 const WHITELIST_ROLES = ['administrator'];
 
+const ERROR_CODE = 'max_session_reached';
+
 add_filter('authenticate', 'lls_authenticate', 1000, 1);
 
 
@@ -44,8 +46,6 @@ function lls_authenticate($user) {
         }
     }
 
-    $error_code = 'max_session_reached';
-    $error_message = 'Maximum ' . MAX_CONCURRENT_SESSIONS . ' login sessions are allowed.';
     $manager = WP_Session_Tokens::get_instance($user->ID);
     $sessions =  $manager->get_all();
 
@@ -64,8 +64,9 @@ function lls_authenticate($user) {
     if (
         ($session_count >= MAX_CONCURRENT_SESSIONS && !$oldest_activity_session) // if no oldest is found do not allow
         || ($session_count >= MAX_CONCURRENT_SESSIONS && $oldest_activity_session['last_activity'] + OLDEST_ALLOWED_SESSION_HOURS * HOUR_IN_SECONDS > time())
-    ){
-        return new WP_Error($error_code, $error_message);
+    ) {
+        $error_message = 'Maximum ' . MAX_CONCURRENT_SESSIONS . ' login sessions are allowed.';
+        return new WP_Error(ERROR_CODE, $error_message);
     }
 
     // 5. Oldest activity session doesn't have activity is given recent hours
