@@ -6,7 +6,7 @@ Author: Sisir Kanti Adhikari
 Author URI: https://sisir.me/
 Author: Noviaria Ltd
 Author URI: https://noviaria.com/
-Description: Limits users login sessions.
+Description: Limits concurrent user login sessions.
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
