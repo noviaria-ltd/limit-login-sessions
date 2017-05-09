@@ -26,6 +26,7 @@ GNU General Public License (http://www.gnu.org/licenses/gpl-2.0.html)
 // setup vars
 const MAX_CONCURRENT_SESSIONS = 3;
 const OLDEST_ALLOWED_SESSION_HOURS = 1;
+const WHITELIST_ROLES = ['administrator'];
 
 add_filter('authenticate', 'lls_authenticate', 1000, 1);
 
@@ -35,6 +36,13 @@ add_filter('authenticate', 'lls_authenticate', 1000, 1);
  * @return WP_User|WP_Error If authenticating the user WP_User, else in case of error WP_Error.
  */
 function lls_authenticate($user) {
+
+    // Check if this user has a role that bypasses the concurrent login check.
+    foreach ($user->roles as $role) {
+        if (in_array($role, WHITELIST_ROLES, True)) {
+            return $user;
+        }
+    }
 
     $error_code = 'max_session_reached';
     $error_message = 'Maximum ' . MAX_CONCURRENT_SESSIONS . ' login sessions are allowed.';
