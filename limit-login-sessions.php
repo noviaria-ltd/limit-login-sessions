@@ -30,6 +30,7 @@ const WHITELIST_ROLES = ['administrator'];
 
 const ERROR_CODE = 'max_session_reached';
 
+// A priority of 1000 will run this plugin very late in the request cycle.
 add_filter('authenticate', 'lls_authenticate', 1000, 1);
 
 
@@ -47,7 +48,7 @@ function lls_authenticate($user) {
     }
 
     $manager = WP_Session_Tokens::get_instance($user->ID);
-    $sessions =  $manager->get_all();
+    $sessions = $manager->get_all();
 
     // 2. Count all active sessions for this user.
     $session_count = count($sessions);
