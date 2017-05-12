@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Limit Login Sessions
+Plugin Name: Limit Concurrent Login Sessions
 Version: 1.0.0
 Author: Sisir Kanti Adhikari
 Author URI: https://sisir.me/
@@ -58,15 +58,15 @@ function lls_authenticate($user) {
         return $user;
     }
 
+    // We now know that user has more than MAX_CONCURRENT_SESSIONS.
+    // Retrieve the timestamp for the oldest session.
     $oldest_activity_session = lls_get_oldest_activity_session($sessions);
 
-    // 4. If active sessions is equal to $max_sessions then check if a session has no activity last $max_oldest_allowed_session_hours hours
+    // 4. Check if a session has no activity last $max_oldest_allowed_session_hours hours
     // 5. if oldest session have activity return error
-    if (
-        ($session_count >= MAX_CONCURRENT_SESSIONS && !$oldest_activity_session) // if no oldest is found do not allow
-        || ($session_count >= MAX_CONCURRENT_SESSIONS && $oldest_activity_session['last_activity'] + OLDEST_ALLOWED_SESSION_HOURS * HOUR_IN_SECONDS > time())
-    ) {
-        $error_message = 'Maximum ' . MAX_CONCURRENT_SESSIONS . ' login sessions are allowed.';
+    if (!$oldest_activity_session // if no oldest is found do not allow
+        || $oldest_activity_session['last_activity'] + OLDEST_ALLOWED_SESSION_HOURS * HOUR_IN_SECONDS > time()) {
+        $error_message = 'Max. ' . MAX_CONCURRENT_SESSIONS . ' concurrent login sessions are allowed.';
         return new WP_Error(ERROR_CODE, $error_message);
     }
 
